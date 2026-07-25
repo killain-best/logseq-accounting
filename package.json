@@ -1,0 +1,28 @@
+{
+  "name": "logseq-accounting",
+  "version": "0.1.0",
+  "description": "在 Logseq 日志里嵌入记账：斜杠命令录入、DB 属性存储、统计仪表盘与预算管理",
+  "main": "dist/index.html",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "logseq": {
+    "id": "logseq-accounting-local",
+    "title": "日志记账",
+    "icon": "icon.svg"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@logseq/libs": "^0.0.17",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.4",
+    "typescript": "^7.0.2",
+    "vite": "^8.1.5"
+  }
+}
