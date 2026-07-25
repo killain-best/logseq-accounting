@@ -3,6 +3,7 @@ import { getSettings } from '../logseq/settings'
 import { submitTxn, type TxnMode } from '../logseq/commands'
 import { closeUI } from './store'
 import { sdk } from '../logseq/sdk'
+import ComboInput from './ComboInput'
 
 export default function TxnForm({ mode, blockUuid }: { mode: TxnMode; blockUuid: string }) {
   const settings = getSettings()
@@ -75,31 +76,23 @@ export default function TxnForm({ mode, blockUuid }: { mode: TxnMode; blockUuid:
         </label>
         <label className="field">
           <span>分类</span>
-          <input
-            list="txn-cats"
+          <ComboInput
             value={category}
-            onChange={(e) => setCategory(e.target.value)}
+            onChange={setCategory}
+            options={cats}
             placeholder="选择或输入新分类"
+            ariaLabel="分类"
           />
-          <datalist id="txn-cats">
-            {cats.map((c) => (
-              <option key={c} value={c} />
-            ))}
-          </datalist>
         </label>
         <label className="field">
           <span>账户</span>
-          <input
-            list="txn-accs"
+          <ComboInput
             value={account}
-            onChange={(e) => setAccount(e.target.value)}
+            onChange={setAccount}
+            options={settings.accounts}
             placeholder="选择或输入新账户"
+            ariaLabel="账户"
           />
-          <datalist id="txn-accs">
-            {settings.accounts.map((a) => (
-              <option key={a} value={a} />
-            ))}
-          </datalist>
         </label>
         <label className="field">
           <span>备注</span>

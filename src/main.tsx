@@ -57,13 +57,13 @@ async function main() {
     template: `<a data-on-click="openDashboard" class="button" title="记账报表" style="font-size:18px;display:inline-flex;align-items:center;justify-content:center">💰</a>`,
   })
 
-  // 斜杠命令
+  // 斜杠命令（英文）
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  sdk.Editor.registerSlashCommand('记账-支出', async (e: any) => {
+  sdk.Editor.registerSlashCommand('expense', async (e: any) => {
     if (e?.uuid) openForm('expense', e.uuid)
   })
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  sdk.Editor.registerSlashCommand('记账-收入', async (e: any) => {
+  sdk.Editor.registerSlashCommand('income', async (e: any) => {
     if (e?.uuid) openForm('income', e.uuid)
   })
   sdk.Editor.registerSlashCommand('记账报表', async () => {

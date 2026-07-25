@@ -1,5 +1,5 @@
 import { sdk } from './sdk'
-import { TYPE_EXPENSE, TYPE_INCOME } from './schema'
+import { PROP, TYPE_EXPENSE, TYPE_INCOME } from './schema'
 
 export interface Txn {
   uuid: string
@@ -21,13 +21,6 @@ export interface Txn {
  *   1. 先查出全部 property 实体，按名字/ident 后缀匹配，拿到它们的实体 id（数字）
  *   2. 用 :in 参数把实体 id 绑到数据模式的属性位置上查询（标量返回，无 keyword key 序列化风险）
  */
-
-const PROP_KEYS = {
-  amount: 'txn_amount',
-  type: 'txn_type',
-  category: 'txn_category',
-  account: 'txn_account',
-} as const
 
 const PROP_DISPLAY: Record<string, string> = {
   txn_amount: '金额',
@@ -67,46 +60,70 @@ interface PropIds {
 
 let cachedIds: PropIds | null = null
 
-/** 找到插件 4 个属性实体的 id（ident 带插件命名空间，运行时解析最稳） */
+/**
+ * 找到插件 4 个属性实体的数字 id。
+ * 首选官方 SDK 的 Editor.getProperty（最可靠）；
+ * datascript ident 扫描仅作兜底——注意不能用 :block/type "property" 过滤，
+ * 某些宿主版本不给属性实体标该类型（已实机踩坑）。
+ */
 async function resolvePropIds(): Promise<PropIds> {
   if (cachedIds) return cachedIds
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const rows: any[] = await sdk.DB.datascriptQuery(
-    `[:find (pull ?p [:db/id :block/name :block/original-name :block/title :db/ident])
-      :where [?p :block/type "property"]]`,
+
+  const keys = [PROP.amount, PROP.type, PROP.category, PROP.account] as const
+  const found: Partial<Record<(typeof keys)[number], number>> = {}
+
+  // 途径 1（首选）：SDK getProperty → BlockEntity.id
+  await Promise.all(
+    keys.map(async (key) => {
+      try {
+        const p = await sdk.Editor.getProperty(key)
+        const id = Number(p?.id ?? g(p, 'db/id'))
+        if (Number.isFinite(id)) found[key] = id
+      } catch {
+        // 忽略，走兜底
+      }
+    }),
   )
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const ents: any[] = (rows ?? []).map((r) => (Array.isArray(r) ? r[0] : r)).filter(Boolean)
 
-  const findOne = (key: string): number | null => {
-    const display = PROP_DISPLAY[key]
-    let fuzzy: number | null = null
-    for (const e of ents) {
-      const id = Number(g(e, 'db/id', 'id'))
-      if (!Number.isFinite(id)) continue
-      const cands = [
-        g(e, 'block/name', 'name'),
-        g(e, 'block/original-name', 'original-name', 'originalName'),
-        g(e, 'block/title', 'title'),
-        g(e, 'db/ident', 'ident', 'block/ident'),
-      ].filter((x): x is string => typeof x === 'string')
-      if (cands.some((c) => c === key)) return id
-      if (fuzzy == null && cands.some((c) => c === display || c.endsWith('/' + key))) fuzzy = id
+  // 途径 2（兜底）：datascript 按 ident 扫描
+  if (keys.some((k) => found[k] == null)) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const rows: any[] = await sdk.DB.datascriptQuery(
+      `[:find (pull ?p [:db/id :db/ident :block/name :block/original-name :block/title])
+        :where [?p :db/ident ?i]]`,
+    ).catch(() => [])
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const ents: any[] = (rows ?? []).map((r) => (Array.isArray(r) ? r[0] : r)).filter(Boolean)
+    for (const key of keys) {
+      if (found[key] != null) continue
+      const display = PROP_DISPLAY[key]
+      for (const e of ents) {
+        const id = Number(g(e, 'db/id', 'id'))
+        if (!Number.isFinite(id)) continue
+        const cands = [
+          g(e, 'db/ident', 'ident', 'block/ident'),
+          g(e, 'block/name', 'name'),
+          g(e, 'block/original-name', 'original-name', 'originalName'),
+          g(e, 'block/title', 'title'),
+        ].filter((x): x is string => typeof x === 'string')
+        if (cands.some((c) => c === key || c.endsWith('/' + key) || c === display)) {
+          found[key] = id
+          break
+        }
+      }
     }
-    return fuzzy
   }
 
-  const amount = findOne(PROP_KEYS.amount)
-  const type = findOne(PROP_KEYS.type)
-  const category = findOne(PROP_KEYS.category)
-  const account = findOne(PROP_KEYS.account)
-  if (amount == null || type == null || category == null || account == null) {
-    throw new Error(
-      `无法定位插件属性实体（共扫到 ${ents.length} 个属性；` +
-        `amount=${amount} type=${type} category=${category} account=${account}）`,
-    )
+  const missing = keys.filter((k) => found[k] == null)
+  if (missing.length) {
+    throw new Error(`无法定位插件属性实体：${missing.join(', ')}（请在插件页重载插件后重试）`)
   }
-  cachedIds = { amount, type, category, account }
+  cachedIds = {
+    amount: found[PROP.amount]!,
+    type: found[PROP.type]!,
+    category: found[PROP.category]!,
+    account: found[PROP.account]!,
+  }
   console.info('[logseq-accounting] property entity ids:', cachedIds)
   return cachedIds
 }

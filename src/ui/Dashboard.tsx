@@ -149,7 +149,7 @@ export default function Dashboard() {
                   <div className="empty">
                     本月还没有账单。
                     <br />
-                    在日志页输入 <code>/记账-支出</code> 开始记一笔吧。
+                    在日志页输入 <code>/expense</code> 开始记一笔吧。
                   </div>
                 ) : (
                   <div className="charts">

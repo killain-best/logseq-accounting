@@ -1,6 +1,6 @@
 {
   "name": "logseq-accounting",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "在 Logseq 日志里嵌入记账：斜杠命令录入、DB 属性存储、统计仪表盘与预算管理",
   "main": "dist/index.html",
   "scripts": {

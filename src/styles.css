@@ -67,6 +67,7 @@ body {
 
 .form-panel {
   width: min(420px, 92vw);
+  overflow: visible; /* 让组合框下拉可以画出面板外 */
 }
 
 .dash-panel {
@@ -207,6 +208,51 @@ body {
 .btn:disabled {
   opacity: 0.6;
   cursor: default;
+}
+
+/* 组合框 */
+
+.combo {
+  position: relative;
+}
+
+.combo-list {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  max-height: 168px;
+  overflow-y: auto;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  z-index: 20;
+}
+
+.combo-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 14px;
+  padding: 7px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.combo-item.hi {
+  background: var(--field-bg);
+}
+
+.combo-item.sel {
+  color: var(--accent);
+  font-weight: 600;
 }
 
 /* ---------- 仪表盘 ---------- */
