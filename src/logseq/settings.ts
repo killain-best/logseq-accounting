@@ -7,7 +7,7 @@ export interface AccountingSettings {
   expenseColor: string
   incomeColor: string
   assetColor: string
-  showOnboarding: boolean
+  usageGuide: string
   expenseCategories: string[]
   incomeCategories: string[]
 }
@@ -19,7 +19,7 @@ const DEFAULTS = {
   expenseColor: '#dc2626',
   incomeColor: '#15803d',
   assetColor: '#d69e00',
-  showOnboarding: true,
+  usageGuide: '/expense 记录支出 · /income 记录收入 · /assets 资产盘点 · /report 记账报表；编辑账单：悬停“编辑”或使用块右键菜单。',
   expenseCategories: '餐饮,交通,购物,居住,娱乐,医疗,教育,其他',
   incomeCategories: '工资,奖金,理财,兼职,其他',
 }
@@ -38,7 +38,7 @@ export function setupSettings(): void {
     { key: 'expenseColor', type: 'string', title: '支出颜色 / Expense color', description: 'CSS 颜色，例如 #dc2626', default: DEFAULTS.expenseColor },
     { key: 'incomeColor', type: 'string', title: '收入颜色 / Income color', description: 'CSS 颜色，例如 #15803d', default: DEFAULTS.incomeColor },
     { key: 'assetColor', type: 'string', title: '资产盘点颜色 / Snapshot color', description: '财务日历中资产盘点星标的颜色', default: DEFAULTS.assetColor },
-    { key: 'showOnboarding', type: 'boolean', title: '显示使用引导 / Show onboarding', description: '下次重载插件时显示命令使用说明', default: DEFAULTS.showOnboarding },
+    { key: 'usageGuide', type: 'string', title: '使用引导 / Usage guide', description: '命令说明，可按自己的习惯修改；插件启动时不会弹窗', default: DEFAULTS.usageGuide },
     { key: 'expenseCategories', type: 'string', title: '支出分类', description: '逗号分隔，可自定义', default: DEFAULTS.expenseCategories },
     { key: 'incomeCategories', type: 'string', title: '收入分类', description: '逗号分隔，可自定义', default: DEFAULTS.incomeCategories },
   ])
@@ -53,7 +53,7 @@ export function parseSettings(rawSettings: Record<string, unknown> = {}): Accoun
     expenseColor: typeof s.expenseColor === 'string' && s.expenseColor ? s.expenseColor : DEFAULTS.expenseColor,
     incomeColor: typeof s.incomeColor === 'string' && s.incomeColor ? s.incomeColor : DEFAULTS.incomeColor,
     assetColor: typeof s.assetColor === 'string' && s.assetColor ? s.assetColor : DEFAULTS.assetColor,
-    showOnboarding: s.showOnboarding !== false,
+    usageGuide: typeof s.usageGuide === 'string' && s.usageGuide.trim() ? s.usageGuide : DEFAULTS.usageGuide,
     expenseCategories: splitList(s.expenseCategories ?? DEFAULTS.expenseCategories),
     incomeCategories: splitList(s.incomeCategories ?? DEFAULTS.incomeCategories),
   }

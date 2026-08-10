@@ -135,9 +135,6 @@ async function main() {
   sdk.Editor.registerSlashCommand('assets', async (e) => {
     if (e?.uuid) await openAssets(e.uuid)
   })
-  sdk.Editor.registerSlashCommand('edit', async (e) => {
-    if (e?.uuid) await openEditForm(e.uuid)
-  })
   sdk.Editor.registerSlashCommand('report', async () => {
     openDashboard()
   })
@@ -165,10 +162,6 @@ async function main() {
   injectBlockStyles()
   setupBlockPresentation((blockUuid) => void openEditForm(blockUuid))
 
-  if (getSettings().showOnboarding) {
-    store.set({ kind: 'onboarding' })
-    sdk.showMainUI({ autoFocus: true })
-  }
 }
 
 const el = document.getElementById('root')

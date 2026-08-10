@@ -4,7 +4,6 @@ import { sdk } from '../logseq/sdk'
 import TxnForm from './TxnForm'
 import Dashboard from './Dashboard'
 import AssetInventory from './AssetInventory'
-import Onboarding from './Onboarding'
 import { getSettings } from '../logseq/settings'
 
 export default function App() {
@@ -58,9 +57,7 @@ export default function App() {
         if (e.target === e.currentTarget) closeUI()
       }}
     >
-      {view.kind === 'onboarding' ? (
-        <Onboarding />
-      ) : view.kind === 'form' ? (
+      {view.kind === 'form' ? (
         <TxnForm
           key={`${view.intent}:${view.blockUuid}`}
           mode={view.mode}

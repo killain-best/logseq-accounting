@@ -13,7 +13,7 @@ describe('settings parsing', () => {
   })
 
   it('parses display customization and clamps decimal places', () => {
-    const result = parseSettings({ language: 'en', decimalPlaces: '9', expenseColor: '#123456', showOnboarding: false })
-    expect(result).toMatchObject({ language: 'en', decimalPlaces: 4, expenseColor: '#123456', showOnboarding: false })
+    const result = parseSettings({ language: 'en', decimalPlaces: '9', expenseColor: '#123456', usageGuide: 'My commands' })
+    expect(result).toMatchObject({ language: 'en', decimalPlaces: 4, expenseColor: '#123456', usageGuide: 'My commands' })
   })
 })

@@ -14,7 +14,6 @@ export type ViewState =
   | { kind: 'form'; intent: 'edit'; mode: TxnMode; blockUuid: string; initial: EditableTxn }
   | { kind: 'assets'; blockUuid: string; snapshots: AssetSnapshot[] }
   | { kind: 'dashboard' }
-  | { kind: 'onboarding' }
 
 type Listener = () => void
 
