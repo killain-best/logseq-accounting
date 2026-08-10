@@ -1,4 +1,6 @@
-# 日志记账（logseq-accounting）
+# Ledger & Worth
+
+*Journal accounting and net worth tracking for Logseq.*
 
 在 Logseq **日志页**里嵌入式记账：用英文斜杠命令快速录入，账单以 **DB 属性**保存，并提供月度现金流报表、明细筛选和资产负债盘点。
 

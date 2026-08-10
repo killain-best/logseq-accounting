@@ -171,5 +171,5 @@ if (el) {
 
 sdk.ready(main).catch((e: unknown) => {
   console.error('[logseq-accounting] init failed', e)
-  sdk.UI.showMsg('「日志记账」初始化失败，请重载插件并查看控制台。', 'error')
+  sdk.UI.showMsg('Ledger & Worth 初始化失败，请重载插件并查看控制台。', 'error')
 })

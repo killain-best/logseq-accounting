@@ -49,7 +49,7 @@ const ASSET_PROP_DEFS: Array<[string, PropertySchemaDef, string]> = [
 export async function ensureSchema(): Promise<boolean> {
   const isDb = await sdk.App.checkCurrentIsDbGraph?.()
   if (!isDb) {
-    await sdk.UI.showMsg('「日志记账」需要 DB 版 graph，当前 graph 不支持，插件已停用。', 'warning')
+    await sdk.UI.showMsg('Ledger & Worth 需要 DB 版 graph，当前 graph 不支持，插件已停用。', 'warning')
     return false
   }
   for (const [key, schema, name] of [...PROP_DEFS, ...ASSET_PROP_DEFS]) {

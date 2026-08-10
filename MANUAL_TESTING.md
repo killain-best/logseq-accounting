@@ -1,6 +1,6 @@
 # Logseq 实机验收清单
 
-每次修改账单写入、DB 查询或界面交互后，先执行 `npm run check`，再在 Logseq 插件页重载「日志记账」。
+每次修改账单写入、DB 查询或界面交互后，先执行 `npm run check`，再在 Logseq 插件页重载 **Ledger & Worth**。
 
 ## 1. 启动与兼容性
 

@@ -1,7 +1,7 @@
 {
   "name": "logseq-accounting",
-  "version": "0.2.0",
-  "description": "Logseq DB 日志记账插件：收支流水、月度报表与资产负债盘点",
+  "version": "0.2.1",
+  "description": "Journal accounting and net worth tracking for Logseq DB graphs",
   "main": "dist/index.html",
   "scripts": {
     "dev": "vite",
@@ -13,7 +13,7 @@
   },
   "logseq": {
     "id": "logseq-accounting-local",
-    "title": "Accounting 记账",
+    "title": "Ledger & Worth",
     "icon": "icon.svg",
     "unsupportedGraphType": "file"
   },
