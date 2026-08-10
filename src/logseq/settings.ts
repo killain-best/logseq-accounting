@@ -7,10 +7,10 @@ export interface AccountingSettings {
   expenseColor: string
   incomeColor: string
   assetColor: string
-  guideExpense: string
-  guideIncome: string
-  guideAssets: string
-  guideReport: string
+  expenseCommand: string
+  incomeCommand: string
+  assetsCommand: string
+  reportCommand: string
   expenseCategories: string[]
   incomeCategories: string[]
 }
@@ -22,10 +22,10 @@ const DEFAULTS = {
   expenseColor: '#dc2626',
   incomeColor: '#15803d',
   assetColor: '#d69e00',
-  guideExpense: '记录支出 / Record an expense',
-  guideIncome: '记录收入 / Record income',
-  guideAssets: '资产盘点 / Review assets and liabilities',
-  guideReport: '记账报表 / Open the accounting report',
+  expenseCommand: '/expense',
+  incomeCommand: '/income',
+  assetsCommand: '/assets',
+  reportCommand: '/report',
   expenseCategories: '餐饮,交通,购物,居住,娱乐,医疗,教育,其他',
   incomeCategories: '工资,奖金,理财,兼职,其他',
 }
@@ -36,12 +36,19 @@ export const splitList = (s: unknown): string[] =>
     .map((x) => x.trim())
     .filter(Boolean)
 
+export function normalizeSlashCommand(value: unknown, fallback: string): string {
+  const name = String(value ?? '').trim().replace(/^\/+/, '')
+  return `/${name || fallback.replace(/^\/+/, '')}`
+}
+
+export const slashCommandName = (value: string): string => value.replace(/^\/+/, '')
+
 export function setupSettings(): void {
   sdk.useSettingsSchema([
-    { key: 'guideExpense', type: 'string', title: '使用引导 1 · /expense', description: '命令说明，可自定义；插件启动时不会弹窗', default: DEFAULTS.guideExpense },
-    { key: 'guideIncome', type: 'string', title: '使用引导 2 · /income', description: '命令说明，可自定义', default: DEFAULTS.guideIncome },
-    { key: 'guideAssets', type: 'string', title: '使用引导 3 · /assets', description: '命令说明，可自定义', default: DEFAULTS.guideAssets },
-    { key: 'guideReport', type: 'string', title: '使用引导 4 · /report', description: '命令说明，可自定义', default: DEFAULTS.guideReport },
+    { key: 'expenseCommand', type: 'string', title: '记录支出 / Record expense', description: '斜杠命令，修改后重载插件生效', default: DEFAULTS.expenseCommand },
+    { key: 'incomeCommand', type: 'string', title: '记录收入 / Record income', description: '斜杠命令，修改后重载插件生效', default: DEFAULTS.incomeCommand },
+    { key: 'assetsCommand', type: 'string', title: '资产盘点 / Asset inventory', description: '斜杠命令，修改后重载插件生效', default: DEFAULTS.assetsCommand },
+    { key: 'reportCommand', type: 'string', title: '记账报表 / Accounting report', description: '斜杠命令，修改后重载插件生效', default: DEFAULTS.reportCommand },
     { key: 'language', type: 'enum', title: '界面语言 / Language', description: '插件界面使用的语言', default: DEFAULTS.language, enumChoices: ['zh-CN', 'en'], enumPicker: 'select' },
     { key: 'currency', type: 'string', title: '币种符号', description: '金额前显示的符号', default: DEFAULTS.currency },
     { key: 'decimalPlaces', type: 'enum', title: '小数位数 / Decimal places', description: '金额显示保留的小数位数', default: DEFAULTS.decimalPlaces, enumChoices: ['0', '1', '2', '3', '4'], enumPicker: 'select' },
@@ -62,10 +69,10 @@ export function parseSettings(rawSettings: Record<string, unknown> = {}): Accoun
     expenseColor: typeof s.expenseColor === 'string' && s.expenseColor ? s.expenseColor : DEFAULTS.expenseColor,
     incomeColor: typeof s.incomeColor === 'string' && s.incomeColor ? s.incomeColor : DEFAULTS.incomeColor,
     assetColor: typeof s.assetColor === 'string' && s.assetColor ? s.assetColor : DEFAULTS.assetColor,
-    guideExpense: typeof s.guideExpense === 'string' && s.guideExpense.trim() ? s.guideExpense : DEFAULTS.guideExpense,
-    guideIncome: typeof s.guideIncome === 'string' && s.guideIncome.trim() ? s.guideIncome : DEFAULTS.guideIncome,
-    guideAssets: typeof s.guideAssets === 'string' && s.guideAssets.trim() ? s.guideAssets : DEFAULTS.guideAssets,
-    guideReport: typeof s.guideReport === 'string' && s.guideReport.trim() ? s.guideReport : DEFAULTS.guideReport,
+    expenseCommand: normalizeSlashCommand(s.expenseCommand, DEFAULTS.expenseCommand),
+    incomeCommand: normalizeSlashCommand(s.incomeCommand, DEFAULTS.incomeCommand),
+    assetsCommand: normalizeSlashCommand(s.assetsCommand, DEFAULTS.assetsCommand),
+    reportCommand: normalizeSlashCommand(s.reportCommand, DEFAULTS.reportCommand),
     expenseCategories: splitList(s.expenseCategories ?? DEFAULTS.expenseCategories),
     incomeCategories: splitList(s.incomeCategories ?? DEFAULTS.incomeCategories),
   }

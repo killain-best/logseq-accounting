@@ -8,11 +8,10 @@ import { ensureSchema } from './logseq/schema'
 import { invalidateQueryCache, queryTxnByUuid } from './logseq/query'
 import { restoreTxnTitles } from './logseq/titleSync'
 import { setupBlockPresentation } from './logseq/blockPresentation'
-import { setupSettings } from './logseq/settings'
+import { getSettings, setupSettings, slashCommandName } from './logseq/settings'
 import { noteFromTxnTitle, type TxnMode } from './logseq/commands'
 import { TYPE_INCOME } from './logseq/schema'
 import { queryAssetSnapshots } from './logseq/assets'
-import { getSettings } from './logseq/settings'
 
 function openForm(mode: TxnMode, blockUuid: string) {
   store.set({ kind: 'form', intent: 'create', mode, blockUuid })
@@ -103,7 +102,8 @@ function injectBlockStyles() {
 
 async function main() {
   setupSettings()
-  const english = getSettings().language === 'en'
+  const settings = getSettings()
+  const english = settings.language === 'en'
 
   // 主 UI 全屏覆盖，内部自己做毛玻璃遮罩 + 居中面板
   sdk.setMainUIInlineStyle({
@@ -126,16 +126,16 @@ async function main() {
   })
 
   // 斜杠命令（英文）
-  sdk.Editor.registerSlashCommand('expense', async (e) => {
+  sdk.Editor.registerSlashCommand(slashCommandName(settings.expenseCommand), async (e) => {
     if (e?.uuid) openForm('expense', e.uuid)
   })
-  sdk.Editor.registerSlashCommand('income', async (e) => {
+  sdk.Editor.registerSlashCommand(slashCommandName(settings.incomeCommand), async (e) => {
     if (e?.uuid) openForm('income', e.uuid)
   })
-  sdk.Editor.registerSlashCommand('assets', async (e) => {
+  sdk.Editor.registerSlashCommand(slashCommandName(settings.assetsCommand), async (e) => {
     if (e?.uuid) await openAssets(e.uuid)
   })
-  sdk.Editor.registerSlashCommand('report', async () => {
+  sdk.Editor.registerSlashCommand(slashCommandName(settings.reportCommand), async () => {
     openDashboard()
   })
   sdk.Editor.registerSlashCommand('恢复账单标题', async () => {

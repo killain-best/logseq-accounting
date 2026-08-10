@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { parseSettings, splitList } from './settings'
+import { normalizeSlashCommand, parseSettings, slashCommandName, splitList } from './settings'
 
 describe('settings parsing', () => {
   it('supports English and Chinese commas', () => {
@@ -13,7 +13,13 @@ describe('settings parsing', () => {
   })
 
   it('parses display customization and clamps decimal places', () => {
-    const result = parseSettings({ language: 'en', decimalPlaces: '9', expenseColor: '#123456', guideExpense: 'My expense command' })
-    expect(result).toMatchObject({ language: 'en', decimalPlaces: 4, expenseColor: '#123456', guideExpense: 'My expense command' })
+    const result = parseSettings({ language: 'en', decimalPlaces: '9', expenseColor: '#123456', expenseCommand: '/spend' })
+    expect(result).toMatchObject({ language: 'en', decimalPlaces: 4, expenseColor: '#123456', expenseCommand: '/spend' })
+  })
+
+  it('normalizes customizable slash commands', () => {
+    expect(normalizeSlashCommand('///spend', '/expense')).toBe('/spend')
+    expect(normalizeSlashCommand('', '/expense')).toBe('/expense')
+    expect(slashCommandName('/spend')).toBe('spend')
   })
 })
