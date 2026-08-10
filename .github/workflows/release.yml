@@ -21,7 +21,7 @@ jobs:
           node-version: 22
           cache: npm
 
-      - run: npm ci
+      - run: npm install --include=optional
       - run: npm run check
 
       - name: Package plugin
