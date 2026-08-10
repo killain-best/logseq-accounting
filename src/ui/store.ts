@@ -1,10 +1,20 @@
 import { sdk } from '../logseq/sdk'
 import type { TxnMode } from '../logseq/commands'
+import type { AssetSnapshot } from '../logseq/assets'
+
+export interface EditableTxn {
+  amount: number
+  category: string
+  note: string
+}
 
 export type ViewState =
   | { kind: 'hidden' }
-  | { kind: 'form'; mode: TxnMode; blockUuid: string }
+  | { kind: 'form'; intent: 'create'; mode: TxnMode; blockUuid: string }
+  | { kind: 'form'; intent: 'edit'; mode: TxnMode; blockUuid: string; initial: EditableTxn }
+  | { kind: 'assets'; blockUuid: string; snapshots: AssetSnapshot[] }
   | { kind: 'dashboard' }
+  | { kind: 'onboarding' }
 
 type Listener = () => void
 

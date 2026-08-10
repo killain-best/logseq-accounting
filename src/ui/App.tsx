@@ -1,12 +1,19 @@
-import { useEffect, useState, useSyncExternalStore } from 'react'
+import { useEffect, useState, useSyncExternalStore, type CSSProperties } from 'react'
 import { store, closeUI } from './store'
 import { sdk } from '../logseq/sdk'
 import TxnForm from './TxnForm'
 import Dashboard from './Dashboard'
+import AssetInventory from './AssetInventory'
+import Onboarding from './Onboarding'
+import { getSettings } from '../logseq/settings'
 
 export default function App() {
   const view = useSyncExternalStore(store.sub, store.get)
   const [theme, setTheme] = useState<'light' | 'dark'>('light')
+  const [, setSettingsVersion] = useState(0)
+  const settings = getSettings()
+
+  useEffect(() => sdk.onSettingsChanged?.(() => setSettingsVersion((version) => version + 1)), [])
 
   // 跟随 Logseq 主题
   useEffect(() => {
@@ -45,12 +52,24 @@ export default function App() {
     <div
       className="overlay"
       data-theme={theme}
+      lang={settings.language}
+      style={{ '--expense': settings.expenseColor, '--income': settings.incomeColor, '--asset-marker': settings.assetColor } as CSSProperties}
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) closeUI()
       }}
     >
-      {view.kind === 'form' ? (
-        <TxnForm mode={view.mode} blockUuid={view.blockUuid} />
+      {view.kind === 'onboarding' ? (
+        <Onboarding />
+      ) : view.kind === 'form' ? (
+        <TxnForm
+          key={`${view.intent}:${view.blockUuid}`}
+          mode={view.mode}
+          blockUuid={view.blockUuid}
+          intent={view.intent}
+          initial={view.intent === 'edit' ? view.initial : undefined}
+        />
+      ) : view.kind === 'assets' ? (
+        <AssetInventory blockUuid={view.blockUuid} snapshots={view.snapshots} />
       ) : (
         <Dashboard />
       )}

@@ -1,4 +1,6 @@
 import { fmtMoney } from '../logseq/query'
+import { getSettings } from '../logseq/settings'
+import { Money, moneyParts } from './Money'
 
 const PALETTE = [
   '#f97316', '#0ea5e9', '#8b5cf6', '#ef4444', '#10b981',
@@ -13,6 +15,8 @@ export interface Slice {
 
 /** 分类支出环形图（纯 SVG，零依赖） */
 export function Donut({ data, currency }: { data: Slice[]; currency: string }) {
+  const settings = getSettings()
+  const english = settings.language === 'en'
   const total = data.reduce((s, d) => s + d.value, 0)
   const R = 54
   const CX = 70
@@ -20,6 +24,7 @@ export function Donut({ data, currency }: { data: Slice[]; currency: string }) {
   const SW = 20
   const C = 2 * Math.PI * R
   let acc = 0
+  const totalParts = moneyParts(total, settings.decimalPlaces)
 
   return (
     <div className="donut-wrap">
@@ -48,11 +53,11 @@ export function Donut({ data, currency }: { data: Slice[]; currency: string }) {
             )
           })}
         <text x={CX} y={CY - 2} textAnchor="middle" className="donut-center-label">
-          支出
+          {english ? 'Expenses' : '支出'}
         </text>
         <text x={CX} y={CY + 18} textAnchor="middle" className="donut-center-value">
           {currency}
-          {fmtMoney(total)}
+          {totalParts.integer}{totalParts.decimal && <tspan className="money-decimal-svg">.{totalParts.decimal}</tspan>}
         </text>
       </svg>
       <ul className="legend">
@@ -62,7 +67,7 @@ export function Donut({ data, currency }: { data: Slice[]; currency: string }) {
             <span className="legend-label">{d.label}</span>
             <span className="legend-value">
               {currency}
-              {fmtMoney(d.value)}
+              <Money amount={d.value} />
             </span>
             <span className="legend-pct">{total > 0 ? Math.round((d.value / total) * 100) : 0}%</span>
           </li>
@@ -80,6 +85,8 @@ export interface BarPoint {
 
 /** 近 N 个月收支柱状图（纯 SVG） */
 export function MonthlyBars({ data, currency }: { data: BarPoint[]; currency: string }) {
+  const settings = getSettings()
+  const english = settings.language === 'en'
   const max = Math.max(1, ...data.flatMap((d) => [d.expense, d.income]))
   const W = 460
   const H = 180
@@ -91,7 +98,7 @@ export function MonthlyBars({ data, currency }: { data: BarPoint[]; currency: st
 
   return (
     <div>
-      <svg viewBox={`0 0 ${W} ${H}`} className="bars-svg" role="img" aria-label="近几个月收支柱状图">
+      <svg viewBox={`0 0 ${W} ${H}`} className="bars-svg" role="img" aria-label={english ? 'Income and expense chart for recent months' : '近几个月收支柱状图'}>
         <line x1={0} x2={W} y1={H - padB} y2={H - padB} stroke="var(--border)" strokeWidth={1} />
         {data.map((d, i) => {
           const x0 = i * groupW + groupW / 2
@@ -108,7 +115,7 @@ export function MonthlyBars({ data, currency }: { data: BarPoint[]; currency: st
                 fill="var(--expense)"
                 opacity={0.85}
               >
-                <title>{`支出 ${currency}${fmtMoney(d.expense)}`}</title>
+                <title>{`${english ? 'Expenses' : '支出'} ${currency}${fmtMoney(d.expense, settings.decimalPlaces)}`}</title>
               </rect>
               <rect
                 x={x0 + 2}
@@ -119,7 +126,7 @@ export function MonthlyBars({ data, currency }: { data: BarPoint[]; currency: st
                 fill="var(--income)"
                 opacity={0.85}
               >
-                <title>{`收入 ${currency}${fmtMoney(d.income)}`}</title>
+                <title>{`${english ? 'Income' : '收入'} ${currency}${fmtMoney(d.income, settings.decimalPlaces)}`}</title>
               </rect>
               <text x={x0} y={H - 8} textAnchor="middle" className="bar-label">
                 {d.label}
@@ -131,11 +138,11 @@ export function MonthlyBars({ data, currency }: { data: BarPoint[]; currency: st
       <div className="bar-legend">
         <span>
           <i className="dot" style={{ background: 'var(--expense)' }} />
-          支出
+          {english ? 'Expenses' : '支出'}
         </span>
         <span>
           <i className="dot" style={{ background: 'var(--income)' }} />
-          收入
+          {english ? 'Income' : '收入'}
         </span>
       </div>
     </div>

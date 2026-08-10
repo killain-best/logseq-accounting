@@ -1,17 +1,32 @@
 {
   "name": "logseq-accounting",
-  "version": "0.1.1",
-  "description": "在 Logseq 日志里嵌入记账：斜杠命令录入、DB 属性存储、统计仪表盘与预算管理",
+  "version": "0.2.0",
+  "description": "Logseq DB 日志记账插件：收支流水、月度报表与资产负债盘点",
   "main": "dist/index.html",
   "scripts": {
     "dev": "vite",
-    "build": "vite build"
+    "build": "vite build",
+    "typecheck": "tsc --noEmit",
+    "lint": "oxlint src --deny-warnings",
+    "test": "vitest run",
+    "check": "npm run typecheck && npm run lint && npm run test && npm run build"
   },
   "logseq": {
     "id": "logseq-accounting-local",
-    "title": "日志记账",
-    "icon": "icon.svg"
+    "title": "Accounting 记账",
+    "icon": "icon.svg",
+    "unsupportedGraphType": "file"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/killain-best/logseq-accounting.git"
+  },
+  "homepage": "https://github.com/killain-best/logseq-accounting#readme",
+  "bugs": {
+    "url": "https://github.com/killain-best/logseq-accounting/issues"
+  },
+  "keywords": ["logseq", "accounting", "finance", "expense", "assets"],
+  "author": "killain-best",
   "license": "MIT",
   "dependencies": {
     "@logseq/libs": "^0.0.17",
@@ -22,7 +37,9 @@
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.4",
+    "oxlint": "^1.77.0",
     "typescript": "^7.0.2",
-    "vite": "^8.1.5"
+    "vite": "^8.1.5",
+    "vitest": "^4.1.10"
   }
 }
