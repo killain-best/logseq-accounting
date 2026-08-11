@@ -70,6 +70,28 @@ function identOf(value: unknown): string | null {
   return /^:[\w.*+!?$%&=<>/-]+$/u.test(ident) ? ident : null
 }
 
+function refId(value: unknown): number | null {
+  if (typeof value === 'number' && Number.isFinite(value)) return value
+  if (!value || typeof value !== 'object') return null
+  const record = value as Record<string, unknown>
+  const raw = record.id ?? record['db/id'] ?? record[':db/id']
+  return typeof raw === 'number' && Number.isFinite(raw) ? raw : null
+}
+
+function parseSnapshotValues(values: unknown[]): AssetSnapshot[] {
+  const snapshots: AssetSnapshot[] = []
+  for (const value of values) {
+    if (typeof value !== 'string') continue
+    try {
+      const parsed = JSON.parse(value) as AssetSnapshot
+      if (parsed?.version === 1 && Array.isArray(parsed.groups)) snapshots.push(parsed)
+    } catch {
+      console.warn('[logseq-accounting] ignored invalid asset snapshot')
+    }
+  }
+  return snapshots
+}
+
 export async function queryAssetSnapshots(): Promise<AssetSnapshot[]> {
   const property = await sdk.Editor.getProperty(ASSET_PROP.snapshot)
   let ident = identOf(property)
@@ -91,24 +113,25 @@ export async function queryAssetSnapshots(): Promise<AssetSnapshot[]> {
   }
   if (!ident) return []
   const rows: unknown[] = await sdk.DB.datascriptQuery(
-    `[:find ?value
+    `[:find ?raw
       :where
-      [?block ${ident} ?ref]
-      (or [?ref :logseq.property/value ?value]
-          [?ref :block/title ?value])]`,
+      [?block ${ident} ?raw]]`,
   )
-  const snapshots: AssetSnapshot[] = []
-  for (const row of rows ?? []) {
-    const value = Array.isArray(row) ? row[0] : null
-    if (typeof value !== 'string') continue
-    try {
-      const parsed = JSON.parse(value) as AssetSnapshot
-      if (parsed?.version === 1 && Array.isArray(parsed.groups)) snapshots.push(parsed)
-    } catch {
-      console.warn('[logseq-accounting] ignored invalid asset snapshot')
-    }
+  const rawValues = (rows ?? []).map((row) => Array.isArray(row) ? row[0] : null)
+  const refIds = rawValues.map(refId).filter((id): id is number => id != null)
+  let referencedValues: unknown[] = []
+  if (refIds.length) {
+    const valueRows: unknown[] = await sdk.DB.datascriptQuery(
+      `[:find ?value
+        :in $ [?ref ...]
+        :where
+        (or [?ref :logseq.property/value ?value]
+            [?ref :block/title ?value])]`,
+      `[${refIds.join(' ')}]`,
+    )
+    referencedValues = (valueRows ?? []).map((row) => Array.isArray(row) ? row[0] : null)
   }
-  return snapshots.sort((a, b) => b.recordedAt - a.recordedAt)
+  return parseSnapshotValues([...rawValues, ...referencedValues]).sort((a, b) => b.recordedAt - a.recordedAt)
 }
 
 export function reviveItem(snapshots: AssetSnapshot[], side: AssetSide, groupName: string, itemName: string): AssetItem | null {

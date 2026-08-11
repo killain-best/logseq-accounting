@@ -39,7 +39,18 @@ describe('asset snapshots', () => {
   it('reads JSON snapshots from a DB property value reference', async () => {
     const snapshot: AssetSnapshot = { version: 1, recordedAt: 2, groups: [] }
     sdkMock.Editor.getProperty.mockResolvedValue({ ident: ':plugin.property.test/asset_snapshot' })
-    sdkMock.DB.datascriptQuery.mockResolvedValue([[JSON.stringify(snapshot)]])
+    sdkMock.DB.datascriptQuery
+      .mockResolvedValueOnce([[321]])
+      .mockResolvedValueOnce([[JSON.stringify(snapshot)]])
+    await expect(queryAssetSnapshots()).resolves.toEqual([snapshot])
+  })
+
+  it('reads a snapshot stored directly as the DB property value', async () => {
+    const snapshot: AssetSnapshot = { version: 1, recordedAt: 4, groups: [] }
+    sdkMock.Editor.getProperty.mockResolvedValue({ ident: ':plugin.property.test/asset_snapshot' })
+    sdkMock.DB.datascriptQuery.mockImplementation(async (query: string) =>
+      query.includes(':logseq.property/value') ? [] : [[JSON.stringify(snapshot)]],
+    )
     await expect(queryAssetSnapshots()).resolves.toEqual([snapshot])
   })
 

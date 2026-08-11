@@ -138,7 +138,10 @@ export default function AssetInventory({ blockUuid, snapshots }: { blockUuid: st
           {group.items.map((item) => (
             <div className="asset-item" key={item.id} onContextMenu={(event) => openMenu(event, { kind: 'item', groupId: group.id, itemId: item.id })}>
               <div className="asset-item-name"><span>{item.name}</span>{snapshots[0] && <small>{english ? 'Previous ' : '上次 '}{currency}{(() => { const value = snapshots[0].groups.find((entry) => entry.id === group.id)?.items.find((entry) => entry.id === item.id)?.amount; return value == null ? '—' : money(value, decimalPlaces) })()}</small>}</div>
-              <label className="asset-amount"><span>{currency}</span><input inputMode="decimal" value={amountDrafts[item.id] ?? item.amount.toFixed(decimalPlaces)} onFocus={() => setAmountDrafts((drafts) => ({ ...drafts, [item.id]: item.amount.toFixed(decimalPlaces) }))} onChange={(event) => {
+              <label className="asset-amount"><span>{currency}</span><input inputMode="decimal" value={amountDrafts[item.id] ?? item.amount.toFixed(decimalPlaces)} onFocus={(event) => {
+                setAmountDrafts((drafts) => ({ ...drafts, [item.id]: item.amount === 0 ? '' : item.amount.toFixed(decimalPlaces) }))
+                if (item.amount !== 0) requestAnimationFrame(() => event.currentTarget.select())
+              }} onChange={(event) => {
                 const value = event.target.value
                 if (!amountPattern.test(value)) return
                 setAmountDrafts((drafts) => ({ ...drafts, [item.id]: value }))
