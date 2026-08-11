@@ -1,16 +1,23 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const sdkMock = vi.hoisted(() => ({
-  Editor: { getProperty: vi.fn() },
+  Editor: {
+    getProperty: vi.fn(), getBlock: vi.fn(), insertBlock: vi.fn(), updateBlock: vi.fn(),
+    getTag: vi.fn(), createTag: vi.fn(), addBlockTag: vi.fn(), upsertBlockProperty: vi.fn(),
+  },
   DB: { datascriptQuery: vi.fn() },
 }))
 
 vi.mock('./sdk', () => ({ sdk: sdkMock }))
 
-import { assetTotals, defaultAssetSnapshot, queryAssetSnapshots, reviveItem, type AssetSnapshot } from './assets'
+import { assetTotals, defaultAssetSnapshot, queryAssetSnapshots, reviveItem, saveAssetSnapshot, type AssetSnapshot } from './assets'
 
 describe('asset snapshots', () => {
-  beforeEach(() => vi.clearAllMocks())
+  beforeEach(() => {
+    vi.clearAllMocks()
+    sdkMock.Editor.getTag.mockResolvedValue({ uuid: 'asset-tag' })
+    sdkMock.Editor.upsertBlockProperty.mockResolvedValue(undefined)
+  })
 
   it('provides the agreed default groups and calculates net assets', () => {
     const snapshot = defaultAssetSnapshot()
@@ -61,5 +68,15 @@ describe('asset snapshots', () => {
       .mockResolvedValueOnce([[{ 'db/ident': 'plugin.property.test/asset_snapshot', 'block/name': 'asset_snapshot' }]])
       .mockResolvedValueOnce([[JSON.stringify(snapshot)]])
     await expect(queryAssetSnapshots()).resolves.toEqual([snapshot])
+  })
+
+  it('keeps a journal timestamp and writes the snapshot in the same block', async () => {
+    sdkMock.Editor.getBlock.mockResolvedValue({ uuid: 'source', content: '11:31' })
+    const snapshot: AssetSnapshot = { version: 1, recordedAt: 4, groups: [] }
+
+    await saveAssetSnapshot('source', snapshot)
+
+    expect(sdkMock.Editor.insertBlock).not.toHaveBeenCalled()
+    expect(sdkMock.Editor.updateBlock).toHaveBeenCalledWith('source', '11:31 📊 资产盘点 · 净资产 ¥0.00')
   })
 })

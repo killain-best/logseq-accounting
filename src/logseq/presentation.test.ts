@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatInlineTxnTitle, stripInlineSummary } from './presentation'
+import { appendAfterJournalTimestamp, formatInlineTxnTitle, stripInlineSummary } from './presentation'
 import { TYPE_EXPENSE, TYPE_INCOME } from './schema'
 
 describe('inline transaction title', () => {
@@ -18,5 +18,11 @@ describe('inline transaction title', () => {
     expect(second).toContain('−¥42')
     expect(second).not.toContain('−¥35')
     expect(second).not.toContain('餐饮')
+  })
+
+  it('appends a generated title after a timestamp-only journal block', () => {
+    expect(appendAfterJournalTimestamp('11:31', '📊 资产盘点')).toBe('11:31 📊 资产盘点')
+    expect(appendAfterJournalTimestamp('8：05', '💸 早餐')).toBe('8：05 💸 早餐')
+    expect(appendAfterJournalTimestamp('11:31 已经有正文', '📊 资产盘点')).toBeNull()
   })
 })

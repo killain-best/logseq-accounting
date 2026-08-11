@@ -1,6 +1,6 @@
 import { sdk } from './sdk'
 import { PROP, TXN_TAG, TYPE_EXPENSE, TYPE_INCOME } from './schema'
-import { formatInlineTxnTitle, stripInlineSummary } from './presentation'
+import { appendAfterJournalTimestamp, formatInlineTxnTitle, stripInlineSummary } from './presentation'
 
 export type TxnMode = 'expense' | 'income'
 
@@ -109,10 +109,11 @@ export async function submitTxn(blockUuid: string, input: TxnInput): Promise<Sub
     throw new TxnWriteError('无法读取当前块', 'load-source', undefined, completed, { cause })
   }
   const content = String(blk?.content ?? blk?.title ?? '').trim()
+  const timestampedTitle = appendAfterJournalTimestamp(content, title)
 
-  if (blk && !content) {
+  if (blk && (!content || timestampedTitle)) {
     try {
-      await sdk.Editor.updateBlock(blockUuid, title)
+      await sdk.Editor.updateBlock(blockUuid, timestampedTitle ?? title)
       uuid = blockUuid
       completed.push('write-title')
     } catch (cause) {

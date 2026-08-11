@@ -11,6 +11,12 @@ export function stripInlineSummary(title: string): string {
   return withoutLegacy.replace(INLINE_SUMMARY_SUFFIX, '').replace(INLINE_AMOUNT_SUFFIX, '').trimEnd()
 }
 
+/** A timestamp-only journal block is a prefix, not existing note content. */
+export function appendAfterJournalTimestamp(content: string, title: string): string | null {
+  const timestamp = content.trim()
+  return /^(?:[01]?\d|2[0-3])[:：][0-5]\d$/u.test(timestamp) ? `${timestamp} ${title}` : null
+}
+
 export function formatInlineTxnTitle(
   title: string,
   amount: number,

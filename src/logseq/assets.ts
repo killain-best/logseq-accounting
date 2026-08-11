@@ -1,5 +1,6 @@
 import { sdk } from './sdk'
 import { ASSET_PROP, ASSET_TAG } from './schema'
+import { appendAfterJournalTimestamp } from './presentation'
 
 export type AssetSide = 'asset' | 'liability'
 
@@ -161,13 +162,14 @@ export async function saveAssetSnapshot(
   const source = await sdk.Editor.getBlock(sourceUuid)
   if (!source) throw new Error('无法读取当前日志块，请重新输入 /assets')
   const content = String(source?.content ?? source?.title ?? '').trim()
+  const timestampedTitle = appendAfterJournalTimestamp(content, title)
   let uuid = sourceUuid
-  if (content) {
+  if (content && !timestampedTitle) {
     const inserted = await sdk.Editor.insertBlock(sourceUuid, title, { sibling: true })
     if (!inserted?.uuid) throw new Error('无法创建资产盘点块')
     uuid = inserted.uuid
   } else {
-    await sdk.Editor.updateBlock(uuid, title)
+    await sdk.Editor.updateBlock(uuid, timestampedTitle ?? title)
   }
   let tag = await sdk.Editor.getTag(ASSET_TAG)
   if (!tag) tag = await sdk.Editor.createTag(ASSET_TAG)
