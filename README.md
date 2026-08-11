@@ -25,9 +25,9 @@ Ledger & Worth keeps daily income and expenses in your Logseq journal, turns the
 
 ![Quick transaction entry](./docs/images/transaction-form.png)
 
-### Asset inventory / 资产盘点
+### Assets dashboard / 资产页面
 
-![Asset inventory](./docs/images/asset-inventory.png)
+![Assets dashboard](./docs/images/asset-dashboard.png)
 
 ## Install from a release
 
