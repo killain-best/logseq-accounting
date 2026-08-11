@@ -1,97 +1,109 @@
 # Ledger & Worth
 
-*Journal accounting and net worth tracking for Logseq.*
+*Journal accounting and net worth tracking for Logseq DB graphs.*
 
-在 Logseq **日志页**里嵌入式记账：用英文斜杠命令快速录入，账单以 **DB 属性**保存，并提供月度现金流报表、明细筛选和资产负债盘点。
+Ledger & Worth keeps daily income and expenses in your Logseq journal, turns them into a monthly cash-flow dashboard, and records point-in-time asset and liability snapshots. All financial records remain ordinary blocks and DB properties inside your graph.
 
-> ⚠️ 仅支持 **DB 版 graph**（数据库版）。文件版（Markdown/Org）graph 无法使用，插件启动时会检测并提示。
+> Requires a **Logseq DB graph**. File-based Markdown/Org graphs are not supported.
 
-## 功能
+## Highlights
 
-- **`/expense`、`/income`**：弹出表单（金额*、分类、备注），确认后自动在当前位置写入结构化账单块
-- **`/assets`**：打开完整资产盘点界面，保存当天的资产负债快照
-- **编辑账单**：悬停账单后点击“编辑”，或使用块右键菜单
-- **`/report` 或工具栏报表图标**：打开仪表盘
-  - 概览：显示当月支出、收入、结余、分类与近 6 个月趋势
-  - 明细：搜索、筛选、按日期/金额排序，点击任意一条跳回日志原块
-  - 资产：财务日历、净资产算式、最近一次资产负债构成
-- **实时刷新**：开着仪表盘记账/改属性，数据自动更新
-- 使用说明位于插件设置页，可自行修改；启动时不弹教学窗口
-- 暗色/亮色主题自适应
+- `/expense` and `/income`: record an amount, category, and note from the current journal block.
+- `/assets`: open a full balance check with editable asset and liability groups.
+- `/report`: review monthly cash flow, searchable transactions, a finance calendar, and net worth.
+- Chinese and English interface options, configurable commands, currency symbol, decimal places, and semantic colors.
+- Light and dark theme support.
+- No external account, cloud database, or runtime chart dependency.
 
-## 安装与加载
+## Screenshots
+
+### Monthly cash-flow dashboard / 月度收支概览
+
+![Monthly cash-flow dashboard](./docs/images/report-overview.png)
+
+### Quick transaction entry / 快速记录收支
+
+![Quick transaction entry](./docs/images/transaction-form.png)
+
+### Asset inventory / 资产盘点
+
+![Asset inventory](./docs/images/asset-inventory.png)
+
+## Install from a release
+
+1. Download the ZIP from [Releases](https://github.com/killain-best/logseq-accounting/releases).
+2. Extract it to a permanent folder.
+3. In Logseq desktop, enable Developer mode under **Settings → Advanced**.
+4. Open **Plugins**, choose **Load unpacked plugin**, and select the extracted folder.
+
+## Build locally
 
 ```bash
 npm install
 npm run build
 ```
 
-然后在 Logseq 桌面端：
+Load the project root with **Load unpacked plugin**. After changing code, run `npm run build` again and reload the plugin in Logseq.
 
-1. `设置 → 高级 → 开发者模式` 打开
-2. 工具栏右侧 `···` 菜单 → `插件`（或 `t p`）进入插件页
-3. 点击 `Load unpacked plugin`，选择本项目根目录
-4. 插件启用后即可使用
+## Commands
 
-修改代码后：重新 `npm run build`，在插件页点该插件的 **重载（reload）** 按钮。
+| Default command | Action |
+|---|---|
+| `/expense` | Record an expense |
+| `/income` | Record income |
+| `/assets` | Create an asset and liability snapshot |
+| `/report` | Open the accounting dashboard |
 
-## 开发与验证
+Command names can be changed in the plugin settings. Reload the plugin after changing them.
 
-建议使用当前 Node.js LTS 或更新版本。提交或加载到 Logseq 前运行：
+## 中文说明
+
+Ledger & Worth 在 Logseq **日志页**内记录收支，用月度报表整理现金流，并通过资产盘点保存每个时间点的资产、负债与净资产。账单和快照都保存在当前 graph 中，不依赖外部账户或云服务。
+
+### 主要功能
+
+- **`/expense`、`/income`**：填写金额、分类和备注，在当前日志位置生成结构化账单。
+- **`/assets`**：打开资产盘点界面，可自行添加、重命名或删除资产与负债的父类、子类；保存后在当日日志生成快照。
+- **`/report`**：打开记账报表。
+  - 概览：本月支出、收入、结余、分类构成与近 6 个月趋势。
+  - 明细：搜索、筛选并按日期或金额排序，点击一条流水可跳回日志原块。
+  - 资产：财务日历、净资产公式和最近一次资产负债构成。
+- 使用说明位于插件设置页，启动时不会弹出教学窗口。
+- 支持亮色和暗色主题。
+
+### 数据规则
+
+- 每笔账是带 `#账单` 标签的日志块；日期取块所在日志页的日期。
+- 账单使用 `txn_amount`、`txn_type`、`txn_category` 等 DB 属性保存；已有 `txn_account` 数据继续兼容。
+- 非日志页里的账单块不计入报表。
+- 删除账单块等于删除该笔账；直接修改属性后，报表会自动刷新。
+- 每次资产盘点保存为带 `#资产盘点` 标签的日志块。后来重命名或删除盘点项目，不会改写过去的快照。
+
+### 可自定义项目
+
+| 项目 | 默认值 |
+|---|---|
+| 界面语言 | 中文，可切换 English |
+| 币种符号 | `¥` |
+| 小数位数 | `2`，可选 0–4 |
+| 支出 / 收入 / 资产盘点颜色 | 红 / 绿 / 黄，支持 CSS 颜色值 |
+| 指令 | `/expense`、`/income`、`/assets`、`/report` |
+| 支出分类 | 餐饮、交通、购物、居住、娱乐、医疗、教育、其他 |
+| 收入分类 | 工资、奖金、理财、兼职、其他 |
+
+## Development
+
+Use a current Node.js LTS release or newer. Before committing or loading a development build, run:
 
 ```bash
 npm run check
 ```
 
-`check` 会依次执行严格类型检查、Oxlint、Vitest 单元测试和生产构建。也可单独执行：
+This runs strict TypeScript checking, Oxlint, Vitest, and the production build. The full manual Logseq checklist is in [MANUAL_TESTING.md](./MANUAL_TESTING.md).
 
-```bash
-npm run typecheck
-npm run lint
-npm run test
-npm run build
-```
+## Technology
 
-Logseq 中的完整人工验收步骤见 [MANUAL_TESTING.md](./MANUAL_TESTING.md)。
-
-## 数据模型（重要）
-
-- 每笔账是一个带 `#账单` 标签的块，**块标题 = 备注**（自动带 💸/💰 前缀）
-- 4 个 DB 属性（显示名 → key）：
-  | 显示名 | key | 类型 |
-  |---|---|---|
-  | 金额 | `txn_amount` | number |
-  | 类型 | `txn_type` | default（`支出`/`收入`） |
-  | 分类 | `txn_category` | node（引用页面，可点进去反查） |
-  | 账户（旧数据兼容） | `txn_account` | node |
-- 新账单不再要求账户；已有 `txn_account` 数据继续保留，不迁移、不删除。
-- **日期 = 块所在日志页的日期**，不单独存日期属性。补记请到对应日期的日志页录入
-- 非日志页上的账单块不纳入统计
-- 所有数据都在 graph 里：删块 = 删账；属性面板可直接改金额/分类，统计自动跟随
-- 分类是 node 型属性，首次使用新值会自动创建同名页面（如「餐饮」页），这是 DB 版的正常特性
-- 每次资产盘点保存为一个带 `#资产盘点` 标签的日志块；过去快照不会因后来重命名或删除盘点项目而改变。
-
-## 设置（插件设置页）
-
-| 项 | 默认 |
-|---|---|
-| 界面语言 | 中文（可切换 English） |
-| 币种符号 | ¥ |
-| 小数位数 | 2（可选 0–4） |
-| 支出 / 收入 / 资产盘点颜色 | 红 / 绿 / 黄（支持 CSS 颜色值） |
-| 记录支出 / 记录收入 / 资产盘点 / 记账报表 | 默认 `/expense`、`/income`、`/assets`、`/report`，均可自定义；修改后重载插件生效 |
-| 支出分类 | 餐饮,交通,购物,居住,娱乐,医疗,教育,其他 |
-| 收入分类 | 工资,奖金,理财,兼职,其他 |
-
-这些选项位于 Logseq 的插件设置页。切换语言后，重载插件可让工具栏提示和右键菜单同时更新。
-
-## 卸载与清理
-
-在插件页卸载即可。插件创建的 `#账单`、`#资产盘点` 标签及属性定义会继续保留；已记录的账单和资产快照都是 graph 内的普通数据。
-
-## 技术栈
-
-TypeScript + React 19 + Vite，图表为手写 SVG（零运行时图表依赖）。Logseq Plugin SDK：`@logseq/libs`（DB 属性 API + Datascript 查询）。
+TypeScript, React 19, Vite, handwritten SVG charts, and the Logseq Plugin SDK (DB properties and Datascript queries).
 
 ## License
 

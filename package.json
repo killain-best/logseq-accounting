@@ -1,6 +1,6 @@
 {
   "name": "logseq-accounting",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Journal accounting and net worth tracking for Logseq DB graphs",
   "main": "dist/index.html",
   "scripts": {
@@ -25,7 +25,13 @@
   "bugs": {
     "url": "https://github.com/killain-best/logseq-accounting/issues"
   },
-  "keywords": ["logseq", "accounting", "finance", "expense", "assets"],
+  "keywords": [
+    "logseq",
+    "accounting",
+    "finance",
+    "expense",
+    "assets"
+  ],
   "author": "killain-best",
   "license": "MIT",
   "dependencies": {
